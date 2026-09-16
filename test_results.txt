@@ -1,0 +1,575 @@
+[0;34m╔═══════════════════════════════════════════════════════════════════════════════╗[0m
+[0;34m║                   Personal Finance Manager E2E Test Suite                     ║[0m
+[0;34m║                            Comprehensive Validation                           ║[0m
+[0;34m╚═══════════════════════════════════════════════════════════════════════════════╝[0m
+
+Target API: [0;36mhttps://personal-finance-management-system-wvw9.onrender.com/api[0m
+Test Mode: [1;33mEnd-to-End API Validation[0m
+Test Run ID: [0;36m1788628619[0m
+
+
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+[1;33mSCENARIO 1: USER REGISTRATION AND AUTHENTICATION[0m
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+
+This scenario tests complete user lifecycle including:
+• User registration with valid data (expects 2xx success)
+• Duplicate registration prevention (expects 4xx client error)
+• Successful authentication (expects 2xx success)
+• Failed authentication attempts (expects 4xx client error)
+• Session-based authorization (expects 4xx when unauthorized)
+
+[0;34m── 1.1 User Registration ──[0m
+
+[0;36m→ Register first user (john.doe.1788628619@example.com)[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  Response: {"message":"User registered successfully","userId":3}
+
+[0;36m→ Register second user (jane.doe.1788628619@example.com)[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  Response: {"message":"User registered successfully","userId":4}
+
+[0;36m→ Attempt duplicate registration[0m
+  [0;32m✓ PASS[0m - Status: 409 (expected 4xx)
+  Response: {"message":"Username already exists"}
+
+[0;36m→ Register with missing username[0m
+  [0;32m✓ PASS[0m - Status: 400 (expected 4xx)
+  Response: {"message":"username: Username is required"}
+
+[0;36m→ Register with missing password[0m
+  [0;32m✓ PASS[0m - Status: 400 (expected 4xx)
+  Response: {"message":"password: Password is required"}
+
+[0;34m── 1.2 Authentication Tests ──[0m
+
+[0;36m→ Login with valid credentials[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"message":"Login successful"}
+
+[0;36m→ Login with invalid password[0m
+  [0;32m✓ PASS[0m - Status: 401 (expected 4xx)
+  Response: {"message":"Invalid username or password"}
+
+[0;36m→ Login with non-existent user[0m
+  [0;32m✓ PASS[0m - Status: 401 (expected 4xx)
+  Response: {"message":"Invalid username or password"}
+
+[0;34m── 1.3 Authorization Tests ──[0m
+
+[0;36m→ Access protected endpoint with valid session[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"categories":[{"name":"Salary","type":"INCOME","isCustom":false,"custom":false},{"name":"Food","type":"EXPENSE","isCustom":false,"custom":false},{"name":"Rent","type":"EXPENSE","isCustom":false,"custom":false},{"name":"Transportation","type":"EXPENSE","isCustom":false,"custom":false},{"name":"Entertainment","type":"EXPENSE","isCustom":false,"custom":false},{"name":"Healthcare","type":"EXPENSE","isCustom":false,"custom":false},{"name":"Utilities","type":"EXPENSE","isCustom":false,"custom":false}]}
+
+[0;36m→ Access protected endpoint without session[0m
+  [0;32m✓ PASS[0m - Status: 401 (expected 4xx)
+  Response: {"message":"Unauthorized"}
+
+[0;36m→ Logout successfully[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"message":"Logout successful"}
+
+[0;36m→ Access protected endpoint after logout[0m
+  [0;32m✓ PASS[0m - Status: 401 (expected 4xx)
+  Response: {"message":"Unauthorized"}
+
+
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+[1;33mSCENARIO 2: TRANSACTION MANAGEMENT[0m
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+
+This scenario tests complete transaction CRUD operations including:
+• Creating income and expense transactions (expects 2xx success)
+• Input validation for amounts, dates, and categories (expects 4xx on invalid data)
+• Retrieving transactions with filtering (expects 2xx success)
+• Updating and deleting transactions (expects 2xx success)
+• Date field cannot be updated
+
+[0;36m→ Re-login for transaction tests[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"message":"Login successful"}
+
+[0;34m── 2.1 Transaction Creation ──[0m
+
+[0;36m→ Create income transaction (Salary)[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  [0;34mID extracted: 9[0m
+  Response: {"id":9,"amount":5000.00,"date":"2024-01-15","category":"Salary","description":"January Salary","type":"INCOME"}
+
+  [0;32m✓ Validation passed:[0m amount = 5000.00
+  [0;32m✓ Validation passed:[0m type = INCOME
+[0;36m→ Create expense transaction (Rent)[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  [0;34mID extracted: 10[0m
+  Response: {"id":10,"amount":1200.00,"date":"2024-01-16","category":"Rent","description":"Monthly rent payment","type":"EXPENSE"}
+
+  [0;32m✓ Validation passed:[0m amount = 1200.00
+  [0;32m✓ Validation passed:[0m type = EXPENSE
+[0;36m→ Create expense transaction (Food)[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  [0;34mID extracted: 11[0m
+  Response: {"id":11,"amount":400.00,"date":"2024-01-17","category":"Food","description":"Groceries","type":"EXPENSE"}
+
+[0;34m── 2.2 Transaction Validation ──[0m
+
+[0;36m→ Create transaction with invalid category[0m
+  [0;32m✓ PASS[0m - Status: 400 (expected 4xx)
+  Response: {"message":"Invalid category: NonExistentCategory"}
+
+[0;36m→ Create transaction with future date[0m
+  [0;32m✓ PASS[0m - Status: 400 (expected 4xx)
+  Response: {"message":"Transaction date cannot be in the future"}
+
+[0;36m→ Create transaction with negative amount[0m
+  [0;32m✓ PASS[0m - Status: 400 (expected 4xx)
+  Response: {"message":"amount: Amount must be positive"}
+
+[0;36m→ Create transaction with zero amount[0m
+  [0;32m✓ PASS[0m - Status: 400 (expected 4xx)
+  Response: {"message":"amount: Amount must be positive"}
+
+[0;36m→ Create transaction with invalid date format[0m
+  [0;32m✓ PASS[0m - Status: 400 (expected 4xx)
+  Response: {"message":"JSON parse error: Cannot deserialize value of type `java.time.LocalDate` from String \"01-17-2024\": Failed to deserialize java.time.LocalDate: (java.time.format.DateTimeParseException) Text '01-17-2024' could not be parsed at index 0"}
+
+[0;34m── 2.3 Transaction Retrieval ──[0m
+
+[0;36m→ Get all transactions[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"transactions":[{"id":11,"amount":400.00,"date":"2024-01-17","category":"Food","description":"Groceries","type":"EXPENSE"},{"id":10,"amount":1200.00,"date":"2024-01-16","category":"Rent","description":"Monthly rent payment","type":"EXPENSE"},{"id":9,"amount":5000.00,"date":"2024-01-15","category":"Salary","description":"January Salary","type":"INCOME"}]}
+
+  [0;32m✓ Validation passed:[0m Found 3 occurrences of '"id":'
+[0;36m→ Filter transactions by category[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"transactions":[{"id":9,"amount":5000.00,"date":"2024-01-15","category":"Salary","description":"January Salary","type":"INCOME"}]}
+
+  [0;32m✓ Validation passed:[0m Response contains: 
+  [0;32m✓ Validation passed:[0m Found 1 occurrences of '"id":'
+[0;36m→ Filter transactions by date range[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"transactions":[{"id":10,"amount":1200.00,"date":"2024-01-16","category":"Rent","description":"Monthly rent payment","type":"EXPENSE"},{"id":9,"amount":5000.00,"date":"2024-01-15","category":"Salary","description":"January Salary","type":"INCOME"}]}
+
+  [0;32m✓ Validation passed:[0m Found 2 occurrences of '"id":'
+[0;34m── 2.4 Transaction Updates - Date Restriction Test ──[0m
+
+[0;36m→ Attempt to update transaction date (should ignore date field)[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"id":9,"amount":5000.00,"date":"2024-01-15","category":"Salary","description":"January Salary","type":"INCOME"}
+
+  [0;32m✓ Validation passed:[0m date = 2024-01-15
+[0;36m→ Update transaction amount and description (no date)[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"id":9,"amount":5500.00,"date":"2024-01-15","category":"Salary","description":"Updated January Salary with bonus","type":"INCOME"}
+
+  [0;32m✓ Validation passed:[0m date = 2024-01-15
+  [0;32m✓ Validation passed:[0m amount = 5500.00
+[0;36m→ Update with date field included (should ignore date)[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"id":11,"amount":450.00,"date":"2024-01-17","category":"Food","description":"Trying to change date","type":"EXPENSE"}
+
+  [0;32m✓ Validation passed:[0m date = 2024-01-17
+  [0;32m✓ Validation passed:[0m amount = 450.00
+  [0;32m✓ Validation passed:[0m description = Trying to change date
+[0;36m→ Update non-existent transaction[0m
+  [0;32m✓ PASS[0m - Status: 404 (expected 4xx)
+  Response: {"message":"Transaction not found"}
+
+[0;34m── 2.5 Transaction Deletion ──[0m
+
+[0;36m→ Delete transaction[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"message":"Transaction deleted successfully"}
+
+[0;36m→ Delete non-existent transaction[0m
+  [0;32m✓ PASS[0m - Status: 404 (expected 4xx)
+  Response: {"message":"Transaction not found"}
+
+
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+[1;33mSCENARIO 3: CATEGORY MANAGEMENT[0m
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+
+This scenario tests category management including:
+• Viewing default categories (expects 2xx success)
+• Creating custom categories (expects 2xx success)
+• Preventing duplicate category names (expects 4xx conflict)
+• Deleting custom categories with usage validation (expects 4xx when in use)
+
+[0;34m── 3.1 Category Viewing ──[0m
+
+[0;36m→ Get all categories (default + custom)[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"categories":[{"name":"Salary","type":"INCOME","isCustom":false,"custom":false},{"name":"Food","type":"EXPENSE","isCustom":false,"custom":false},{"name":"Rent","type":"EXPENSE","isCustom":false,"custom":false},{"name":"Transportation","type":"EXPENSE","isCustom":false,"custom":false},{"name":"Entertainment","type":"EXPENSE","isCustom":false,"custom":false},{"name":"Healthcare","type":"EXPENSE","isCustom":false,"custom":false},{"name":"Utilities","type":"EXPENSE","isCustom":false,"custom":false}]}
+
+  [0;32m✓ Validation passed:[0m Response contains: 
+  [0;32m✓ Validation passed:[0m Response contains: 
+  [0;32m✓ Validation passed:[0m Response contains: 
+[0;34m── 3.2 Custom Category Creation ──[0m
+
+[0;36m→ Create custom income category[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  Response: {"name":"Freelance_1788628619","type":"INCOME","isCustom":true,"custom":true}
+
+  [0;32m✓ Validation passed:[0m custom = true
+[0;36m→ Create custom expense category[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  Response: {"name":"GymMembership_1788628619","type":"EXPENSE","isCustom":true,"custom":true}
+
+[0;36m→ Attempt duplicate category creation[0m
+  [0;32m✓ PASS[0m - Status: 409 (expected 4xx)
+  Response: {"message":"Category with this name already exists"}
+
+[0;36m→ Create category with invalid type[0m
+  [0;32m✓ PASS[0m - Status: 400 (expected 4xx)
+  Response: {"message":"Invalid category type. Must be INCOME or EXPENSE"}
+
+[0;34m── 3.3 Category Usage and Deletion ──[0m
+
+[0;36m→ Create transaction with custom category[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  [0;34mID extracted: 12[0m
+  Response: {"id":12,"amount":1500.00,"date":"2024-01-18","category":"Freelance_1788628619","description":"Client project payment","type":"INCOME"}
+
+[0;36m→ Try to delete category in use[0m
+  [0;32m✓ PASS[0m - Status: 400 (expected 4xx)
+  Response: {"message":"Cannot delete category with existing transactions"}
+
+[0;36m→ Delete unused custom category[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"message":"Category deleted successfully"}
+
+[0;36m→ Try to delete default category[0m
+  [0;32m✓ PASS[0m - Status: 400 (expected 4xx)
+  Response: {"message":"Cannot delete default categories"}
+
+
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+[1;33mSCENARIO 4: SAVINGS GOALS MANAGEMENT WITH PROGRESS CALCULATION[0m
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+
+This scenario tests savings goals functionality including:
+• Creating goals with valid target amounts and dates (expects 2xx success)
+• Input validation for goals (expects 4xx for invalid data)
+• Progress tracking based on transactions (expects 2xx with calculated progress)
+• Goal start date defaults to creation date
+• Progress = (Total Income - Total Expenses) since goal start date
+
+[0;34m── 4.1 Goal Creation and Default Start Date ──[0m
+
+[0;36m→ Create goal without start date (should default to today)[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  [0;34mID extracted: 5[0m
+  Response: {"id":5,"goalName":"Emergency Fund No Start Date","targetAmount":10000.00,"targetDate":"2027-01-01","startDate":"2026-09-05","currentProgress":0,"progressPercentage":0.0,"remainingAmount":10000.00}
+
+  [0;32m✓ Validation passed:[0m startDate = 2026-09-05 (default date)
+[0;36m→ Create emergency fund goal with explicit start date[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  [0;34mID extracted: 6[0m
+  Response: {"id":6,"goalName":"Emergency Fund","targetAmount":10000.00,"targetDate":"2027-01-01","startDate":"2024-01-01","currentProgress":6550.00,"progressPercentage":65.5,"remainingAmount":3450.00}
+
+  [0;32m✓ Validation passed:[0m currentProgress = 6550.00
+  [0;32m✓ Validation passed:[0m progressPercentage = 65.5
+  [0;32m✓ Validation passed:[0m remainingAmount = 3450.00
+[0;36m→ Create vacation fund goal[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  [0;34mID extracted: 7[0m
+  Response: {"id":7,"goalName":"Vacation Fund","targetAmount":5000.00,"targetDate":"2027-12-01","startDate":"2024-02-01","currentProgress":0,"progressPercentage":0.0,"remainingAmount":5000.00}
+
+  [0;32m✓ Validation passed:[0m currentProgress = 0
+  [0;32m✓ Validation passed:[0m progressPercentage = 0.0
+[0;34m── 4.2 Goal Validation ──[0m
+
+[0;36m→ Create goal with past target date[0m
+  [0;32m✓ PASS[0m - Status: 400 (expected 4xx)
+  Response: {"message":"Target date must be in the future"}
+
+[0;36m→ Create goal with negative amount[0m
+  [0;32m✓ PASS[0m - Status: 400 (expected 4xx)
+  Response: {"message":"targetAmount: Target amount must be positive"}
+
+[0;36m→ Create goal with zero amount[0m
+  [0;32m✓ PASS[0m - Status: 400 (expected 4xx)
+  Response: {"message":"targetAmount: Target amount must be positive"}
+
+[0;36m→ Create goal with start date after target date[0m
+  [0;32m✓ PASS[0m - Status: 400 (expected 4xx)
+  Response: {"message":"Target date must be in the future"}
+
+[0;34m── 4.3 Goal Progress After Adding Transactions ──[0m
+
+[0;36m→ Add income after second goal start date[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  [0;34mID extracted: 13[0m
+  Response: {"id":13,"amount":3000.00,"date":"2024-02-15","category":"Salary","description":"February bonus","type":"INCOME"}
+
+[0;36m→ Add expense after second goal start date[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  [0;34mID extracted: 14[0m
+  Response: {"id":14,"amount":500.00,"date":"2024-02-20","category":"Food","description":"February groceries","type":"EXPENSE"}
+
+[0;36m→ Get vacation fund goal with updated progress[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"id":7,"goalName":"Vacation Fund","targetAmount":5000.00,"targetDate":"2027-12-01","startDate":"2024-02-01","currentProgress":2500.00,"progressPercentage":50.0,"remainingAmount":2500.00}
+
+  [0;32m✓ Validation passed:[0m currentProgress = 2500.00
+  [0;32m✓ Validation passed:[0m progressPercentage = 50.0
+  [0;32m✓ Validation passed:[0m remainingAmount = 2500.00
+[0;34m── 4.4 Goal Management ──[0m
+
+[0;36m→ Get all goals with progress[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"goals":[{"id":5,"goalName":"Emergency Fund No Start Date","targetAmount":10000.00,"targetDate":"2027-01-01","startDate":"2026-09-05","currentProgress":0,"progressPercentage":0.0,"remainingAmount":10000.00},{"id":6,"goalName":"Emergency Fund","targetAmount":10000.00,"targetDate":"2027-01-01","startDate":"2024-01-01","currentProgress":9050.00,"progressPercentage":90.5,"remainingAmount":950.00},{"id":7,"goalName":"Vacation Fund","targetAmount":5000.00,"targetDate":"2027-12-01","startDate":"2024-02-01","currentProgress":2500.00,"progressPercentage":50.0,"remainingAmount":2500.00}]}
+
+  [0;32m✓ Validation passed:[0m Found 3 occurrences of '"id":'
+[0;36m→ Update goal target amount[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"id":6,"goalName":"Emergency Fund","targetAmount":15000.00,"targetDate":"2027-01-01","startDate":"2024-01-01","currentProgress":9050.00,"progressPercentage":60.33,"remainingAmount":5950.00}
+
+  [0;32m✓ Validation passed:[0m progressPercentage = 60.33
+  [0;32m✓ Validation passed:[0m remainingAmount = 5950.00
+[0;36m→ Update goal target date[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"id":6,"goalName":"Emergency Fund","targetAmount":15000.00,"targetDate":"2028-01-01","startDate":"2024-01-01","currentProgress":9050.00,"progressPercentage":60.33,"remainingAmount":5950.00}
+
+[0;36m→ Update non-existent goal[0m
+  [0;32m✓ PASS[0m - Status: 404 (expected 4xx)
+  Response: {"message":"Goal not found"}
+
+
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+[1;33mSCENARIO 5: TRANSACTION DELETION IMPACT ON GOALS AND REPORTS[0m
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+
+This scenario tests that deleted transactions:
+• No longer affect goal progress calculations
+• Are excluded from monthly and yearly reports
+• Ensures data consistency after deletion
+
+[0;34m── 5.1 Record Current State ──[0m
+
+[0;36m→ Get vacation fund goal before deletion[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"id":7,"goalName":"Vacation Fund","targetAmount":5000.00,"targetDate":"2027-12-01","startDate":"2024-02-01","currentProgress":2500.00,"progressPercentage":50.0,"remainingAmount":2500.00}
+
+  [0;32m✓ Validation passed:[0m currentProgress = 2500.00
+[0;36m→ Get February 2024 report before deletion[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"month":2,"year":2024,"totalIncome":{"Salary":3000.00},"totalExpenses":{"Food":500.00},"netSavings":2500.00}
+
+  Checking February report before deletion...
+  [0;32m✓ Validation passed:[0m netSavings = 2500.00
+[0;34m── 5.2 Delete Transaction and Verify Impact ──[0m
+
+[0;36m→ Delete February expense transaction[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"message":"Transaction deleted successfully"}
+
+[0;36m→ Get vacation fund goal after expense deletion[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"id":7,"goalName":"Vacation Fund","targetAmount":5000.00,"targetDate":"2027-12-01","startDate":"2024-02-01","currentProgress":3000.00,"progressPercentage":60.0,"remainingAmount":2000.00}
+
+  [0;32m✓ Validation passed:[0m currentProgress = 3000.00
+  [0;32m✓ Validation passed:[0m progressPercentage = 60.0
+[0;36m→ Get February 2024 report after deletion[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"month":2,"year":2024,"totalIncome":{"Salary":3000.00},"totalExpenses":{},"netSavings":3000.00}
+
+  [0;32m✓ Validation passed:[0m netSavings = 3000.00
+[0;34m── 5.3 Delete Income Transaction and Verify ──[0m
+
+[0;36m→ Delete February income transaction[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"message":"Transaction deleted successfully"}
+
+[0;36m→ Get vacation fund goal after income deletion[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"id":7,"goalName":"Vacation Fund","targetAmount":5000.00,"targetDate":"2027-12-01","startDate":"2024-02-01","currentProgress":0,"progressPercentage":0.0,"remainingAmount":5000.00}
+
+  [0;32m✓ Validation passed:[0m currentProgress = 0
+  [0;32m✓ Validation passed:[0m progressPercentage = 0.0
+[0;36m→ Get February 2024 report after all deletions[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"month":2,"year":2024,"totalIncome":{},"totalExpenses":{},"netSavings":0}
+
+  [0;32m✓ Validation passed:[0m netSavings = 0
+[0;36m→ Delete vacation fund goal[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"message":"Goal deleted successfully"}
+
+[0;36m→ Delete non-existent goal[0m
+  [0;32m✓ PASS[0m - Status: 404 (expected 4xx)
+  Response: {"message":"Goal not found"}
+
+
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+[1;33mSCENARIO 6: REPORTS GENERATION WITH CALCULATIONS[0m
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+
+This scenario tests report generation including:
+• Monthly reports with income/expense breakdown (expects 2xx success)
+• Yearly reports aggregating monthly data (expects 2xx success)
+• Accurate calculations for net savings
+• Input validation for report parameters (expects 4xx for invalid input)
+
+[0;34m── 6.1 Monthly Reports with Calculations ──[0m
+
+[0;36m→ Generate January 2024 monthly report[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"month":1,"year":2024,"totalIncome":{"Salary":5500.00,"Freelance_1788628619":1500.00},"totalExpenses":{"Food":450.00},"netSavings":6550.00}
+
+  Validating January calculations...
+  [0;32m✓ Validation passed:[0m netSavings = 6550.00
+  [0;32m✓ Validation passed:[0m Response contains: 1500.00
+[0;36m→ Generate report for month with no data[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"month":12,"year":2024,"totalIncome":{},"totalExpenses":{},"netSavings":0}
+
+  [0;32m✓ Validation passed:[0m netSavings = 0
+[0;36m→ Generate report for invalid month[0m
+  [0;32m✓ PASS[0m - Status: 400 (expected 4xx)
+  Response: {"message":"Month must be between 1 and 12"}
+
+[0;36m→ Generate report for month 0[0m
+  [0;32m✓ PASS[0m - Status: 400 (expected 4xx)
+  Response: {"message":"Month must be between 1 and 12"}
+
+[0;34m── 6.2 Yearly Reports with Calculations ──[0m
+
+[0;36m→ Generate 2024 yearly report[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"year":2024,"totalIncome":{"Salary":5500.00,"Freelance_1788628619":1500.00},"totalExpenses":{"Food":450.00},"netSavings":6550.00}
+
+  Validating yearly calculations...
+  [0;32m✓ Validation passed:[0m netSavings = 6550.00
+[0;36m→ Generate report for year with no data[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"year":2023,"totalIncome":{},"totalExpenses":{},"netSavings":0}
+
+  [0;32m✓ Validation passed:[0m netSavings = 0
+
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+[1;33mSCENARIO 7: DATA ISOLATION BETWEEN USERS[0m
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+
+This scenario tests data security and isolation including:
+• Users can only access their own data (expects 2xx for own data)
+• Users cannot access other users' data (expects 4xx for others' data)
+• Session-based user identification works correctly
+
+[0;34m── 7.1 Second User Setup ──[0m
+
+[0;36m→ Login as second user[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"message":"Login successful"}
+
+[0;34m── 7.2 Data Isolation Verification ──[0m
+
+[0;36m→ Second user sees only default categories[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"categories":[{"name":"Salary","type":"INCOME","isCustom":false,"custom":false},{"name":"Food","type":"EXPENSE","isCustom":false,"custom":false},{"name":"Rent","type":"EXPENSE","isCustom":false,"custom":false},{"name":"Transportation","type":"EXPENSE","isCustom":false,"custom":false},{"name":"Entertainment","type":"EXPENSE","isCustom":false,"custom":false},{"name":"Healthcare","type":"EXPENSE","isCustom":false,"custom":false},{"name":"Utilities","type":"EXPENSE","isCustom":false,"custom":false}]}
+
+  [0;32m✓ Validation passed:[0m Second user cannot see first user's custom category
+[0;36m→ Second user has no transactions initially[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"transactions":[]}
+
+  [0;32m✓ Validation passed:[0m Response contains: 
+[0;36m→ Second user has no goals initially[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"goals":[]}
+
+  [0;32m✓ Validation passed:[0m Response contains: 
+[0;34m── 7.3 Cross-User Data Access Prevention ──[0m
+
+[0;36m→ Second user cannot update first user's transaction[0m
+  [0;32m✓ PASS[0m - Status: 404 (expected 4xx)
+  Response: {"message":"Transaction not found"}
+
+[0;36m→ Second user cannot delete first user's goal[0m
+  [0;32m✓ PASS[0m - Status: 403 (expected 4xx)
+  Response: {"message":"Access denied to this goal"}
+
+[0;34m── 7.4 Independent User Operations ──[0m
+
+[0;36m→ Second user creates own transaction[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  Response: {"id":15,"amount":3000.00,"date":"2024-01-20","category":"Salary","description":"Jane January Salary","type":"INCOME"}
+
+[0;36m→ Second user creates own goal[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  Response: {"id":8,"goalName":"Jane Emergency Fund","targetAmount":8000.00,"targetDate":"2027-12-01","startDate":"2026-09-05","currentProgress":0,"progressPercentage":0.0,"remainingAmount":8000.00}
+
+  [0;32m✓ Validation passed:[0m startDate = 2026-09-05 (default date)
+[0;36m→ First user still sees only own data[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"transactions":[{"id":12,"amount":1500.00,"date":"2024-01-18","category":"Freelance_1788628619","description":"Client project payment","type":"INCOME"},{"id":11,"amount":450.00,"date":"2024-01-17","category":"Food","description":"Trying to change date","type":"EXPENSE"},{"id":9,"amount":5500.00,"date":"2024-01-15","category":"Salary","description":"Updated January Salary with bonus","type":"INCOME"}]}
+
+  [0;32m✓ Validation passed:[0m First user cannot see second user's transaction
+  [0;32m✓ Validation passed:[0m Found 3 occurrences of '"id":'
+
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+[1;33mSCENARIO 8: COMPREHENSIVE USER JOURNEY[0m
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+
+This scenario tests a complete user workflow including:
+• Setting up categories and transactions
+• Creating and tracking goals
+• Generating reports
+• Verifying data consistency across operations
+
+[0;34m── 8.1 User Workflow Setup ──[0m
+
+[0;36m→ First user creates custom category[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  Response: {"name":"SideBusiness_1788628619","type":"INCOME","isCustom":true,"custom":true}
+
+[0;36m→ Add side business income[0m
+  [0;32m✓ PASS[0m - Status: 201 (expected 2xx)
+  Response: {"id":16,"amount":800.00,"date":"2024-01-25","category":"SideBusiness_1788628619","description":"Consulting work","type":"INCOME"}
+
+[0;34m── 8.2 Goal Progress Verification ──[0m
+
+[0;36m→ Check updated goal progress after new transaction[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"id":6,"goalName":"Emergency Fund","targetAmount":15000.00,"targetDate":"2028-01-01","startDate":"2024-01-01","currentProgress":7350.00,"progressPercentage":49.0,"remainingAmount":7650.00}
+
+  [0;32m✓ Validation passed:[0m currentProgress = 7350.00
+[0;34m── 8.3 Report Consistency ──[0m
+
+[0;36m→ Generate updated monthly report[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"month":1,"year":2024,"totalIncome":{"Salary":5500.00,"Freelance_1788628619":1500.00,"SideBusiness_1788628619":800.00},"totalExpenses":{"Food":450.00},"netSavings":7350.00}
+
+  [0;32m✓ Validation passed:[0m netSavings = 7350.00
+  [0;32m✓ Validation passed:[0m Response contains: 800.00
+[0;36m→ Generate updated yearly report[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"year":2024,"totalIncome":{"Salary":5500.00,"Freelance_1788628619":1500.00,"SideBusiness_1788628619":800.00},"totalExpenses":{"Food":450.00},"netSavings":7350.00}
+
+  [0;32m✓ Validation passed:[0m netSavings = 7350.00
+[0;34m── 8.4 Session Management ──[0m
+
+[0;36m→ Logout first user[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"message":"Logout successful"}
+
+[0;36m→ Logout second user[0m
+  [0;32m✓ PASS[0m - Status: 200 (expected 2xx)
+  Response: {"message":"Logout successful"}
+
+[0;36m→ Verify sessions invalidated[0m
+  [0;32m✓ PASS[0m - Status: 401 (expected 4xx)
+  Response: {"message":"Unauthorized"}
+
+
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+[1;33mTEST EXECUTION SUMMARY[0m
+[1;33m═══════════════════════════════════════════════════════════════════════════════[0m
+Base URL: [0;36mhttps://personal-finance-management-system-wvw9.onrender.com/api[0m
+Total Tests Executed: [0;34m86[0m
+Tests Passed: [0;32m86[0m
+Tests Failed: [0;31m0[0m
+Success Rate: [0;36m100%[0m
+
+[0;32m🎉 ALL TESTS PASSED! 🎉[0m
+[0;32mThe Personal Finance Manager API is working correctly.[0m

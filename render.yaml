@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: personal-finance-manager
+    runtime: java
+    buildCommand: ./mvnw clean package -DskipTests
+    startCommand: java -jar target/personal-finance-manager-0.0.1-SNAPSHOT.jar
+    envVars:
+      - key: JAVA_VERSION
+        value: 17
+      - key: DATABASE_URL
+        value: jdbc:h2:mem:financedb;DB_CLOSE_DELAY=-1
